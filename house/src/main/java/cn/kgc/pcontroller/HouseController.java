@@ -5,6 +5,7 @@ import cn.kgc.entity.House;
 import cn.kgc.entity.Users;
 import cn.kgc.service.HouseService;
 import cn.kgc.utils.HouseCondition;
+import cn.kgc.utils.sms.SentMsgUtil;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -127,4 +128,29 @@ public class HouseController {
 
     }
 
+
+    //手机号发送短信
+    @RequestMapping("sendMess")
+    @ResponseBody
+    public String sendMess(String tel,HttpSession session){
+        String code= (int) Math.random() * 1000 + 1000+"";
+        session.setAttribute("code",code);
+        int i=0;
+        if (tel!=null&&!tel.isEmpty()){
+            i = SentMsgUtil.sendMsg(tel, code);
+        }
+        if (i>0){
+            return "{\"result\":"+1+"}";
+        }
+        return "{\"result\":"+0+"}";
+    }
+//通过手机验证码验证
+    @RequestMapping("confirm")
+    public String confirm(String code,HttpSession session){
+        Object o = session.getAttribute("code");
+        if (code.equals(o.toString())){
+            return "界面";
+        }
+        return "登录";
+    }
 }
